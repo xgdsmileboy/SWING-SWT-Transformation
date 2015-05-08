@@ -1,0 +1,686 @@
+//-------------------------------------Shell-----------------------
+(jf : JFrame -> Shell, title : String -> String)$instance
+{
+  - jf = new JFrame(title);
+  + Display d = new Display();
+  + jf = new Shell(d);
+  + jf.setText(title);
+}
+#1
+(jf : JFrame -> Shell)$invocation
+{
+  - jf.setVisible(true);
+  + jf.pack();
+  + jf.open();
+  + while(!jf.isDispose()){
+  +   if(!d.readAndDispatch()){
+  +     d.sleep();
+  +   }
+  + }
+  + d.dispose();
+}
+#2
+(jf : JFrame -> Shell, x : int -> int, y : int -> int)$invocation
+{
+  - jf.setSize(x, y);
+  + jf.setSize(x, y);
+}
+#3
+ //此处的fl可以使用layout进行类型表示，包含FlowLayout、GridLayout等等，方便语法表示，具体不同类型的Layout会根据其具体类型依据Layout转换规则进行转换。
+(jf : JFrame -> Shell, fl : FlowLayout | GridLayout | CardLayout -> RowLayout | GridLayout | StackLayout)$invocation
+{
+  - jf.setLayout(fl);
+  + jf.setLayout(fl);
+}
+#4
+//-----------------------------------Composite-----------------------
+(jp : JPanel -> Composite, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - jp = new JPanel();
+  - parent.add(jp);
+  + jp = new Composite(parent, SWT.NONE);
+}
+#5
+(jp : JPanel -> Composite, fl : FlowLayout | GridLayout | CardLayout -> RowLayout | GridLayout | StackLayout)$invocation
+{
+  - jp.setLayout(fl);
+  + jp.setLayout(fl);
+}
+#6
+//------------------------------------Group----------------------
+(jp : JPanel -> Group, parent : JFrame | JPanel -> Shell | Composite, title : String -> String)$instance
+{
+  - jp = new JPanel();
+  - TitledBorder tb = new TitledBorder(title);
+  - jp.setBorder(tb);
+  - parent.add(jp);
+  + jp = new Group(parent, SWT.NONE);
+  + jp.setText(title);
+}
+#7
+//------------------------------------Button--------------------
+(jb :JButton -> Button, parent : JPanel | JFrame -> Composite | Shell, title : String -> String)$instance
+{
+  - jb = new JButton(title);
+  - parent.add(jb);
+  + jb = new Button(parent, SWT.PUSH);
+  + jb.setText(title);
+}
+#8
+(jb : JButton -> Button, al : ActionListener -> SelectionListener)$invocation
+{
+  - jb.addActionListener(al);
+  + jb.addSelectionListener(al);
+}
+#9
+(jb : JButton -> Button, parent : JFrame | JPanel -> Shell | Composite, title : String -> String)$instance
+{
+  - Constructor ctor = JButton.class.getConstructor(new Class[]{String.class});
+  - jb = (JButton)ctor.newInstance(title);
+  - parent.add(jb);
+  + Constructor ctor = Button.class.getConstructor(new Class[]{Composite.class, int.class});
+  + jb = (Button)ctor.newInstance(parent, SWT.PUSH);
+  + jb.setText(title);
+}
+#10
+(jb : JButton -> Button, parent : JFrame | JPanel -> Shell | Composite, icon : Icon -> Image, title : String -> String)$instance
+{
+  - jb = new JButton(title, icon);
+  - parent.add(jb);
+  + jb = new Button(parent, SWT.PUSH);
+  + jb.setText(title);
+  + jb.setImage(icon);
+}
+#11
+(jb : JButton -> Button, text : String -> String)$invocation
+{
+  - jb.setToolTipText(text);
+  + jb.setToolTipText(text);
+}
+#12
+(jb : JButton -> Button, icon : Icon -> Image)$invocation
+{
+  - jb.setIcon(icon);
+  + jb.setImage(icon);
+}
+#13
+(jb : JButton -> Button, text : String -> String)$invocation
+{
+  - jb.setText(text);
+  + jb.setText(text);
+}
+#14
+(jb : JButton -> Button, icon : Icon -> Image)$invocation
+{
+  - jb.setRolloverEnabled(true);
+  - jb.setRolloverIcon(icon);
+  + jb.addMouseTrackListener(new MouseTrackListener() {
+  +     @Override
+  +		public void mouseHover(MouseEvent e) {
+  +				jb.setImage(icon);
+  +		}
+  +		@Override
+  +		public void mouseExit(MouseEvent e) {
+  +			jb.setImage(new Image(getDispaly(), "other image"));
+  +		}
+			
+  +		@Override
+  +		public void mouseEnter(MouseEvent e) {
+  +			jb.setImage(icon);
+  +		}
+  +	});
+}
+#15
+(jb : JButton -> Button, icon : Icon -> Image)$invocation
+{
+  - jb.setPressedIcon(icon);
+  + jb.addMouseListener(new MouseListener() {
+  +		@Override
+  +		public void mouseUp(MouseEvent e) {
+  +     	jb.setImage(new Image(getDisplay(), "other image"));
+  +		}
+  +		@Override
+  +		public void mouseDown(MouseEvent e) {
+  +			jb.setImage(icon);
+  +		}
+  +		@Override
+  +		public void mouseDoubleClick(MouseEvent e) {
+  +		}
+  +	});
+}
+#16
+(jb : JButton -> Button)$invocation
+{
+  - jb.setVerticalAlignment(JButton.TOP);
+  + jb.setAlignment(SWT.TOP);
+}
+#17
+(jb : JButton -> Button)$invocation
+{
+  - jb.setHorizontalAlignment(JButton.LEFT);
+  + jb.setAlignment(SWT.LEFT);
+}
+#18
+(jb : JButton -> Button)$invocation
+{
+  - jb.setVerticalAlignment(JButton.TOP);
+  - jb.setHorizontalAlignment(JButton.LEFT);
+  + jb.setAlignment(SWT.TOP | SWT.LEFT);
+}
+#19
+(jb : JButton -> Button, enabled : boolean -> boolean)$invocation
+{
+  - jb.setEnabled(enabled);
+  + jb.setEnabled(enabled);
+}
+#20
+(rb : JRadioButton -> Button, parent : JFrame | JPanel -> Shell | Composite, name : String -> String)$instance
+{
+  - rb = new JRadioButton(name);
+  - parent.add(rb);
+  + rb = new Button(parent, SWT.RADIO);
+  + rb.setText(name);
+}
+#21
+(cb : JCheckBox -> Button, parent : JFrame | JPanel -> Shell | Composite, name : String -> String)$instance
+{
+  - cb = new JCheckBox(name);
+  - parent.add(cb);
+  + cb = new Button(parent, SWT.CHECK);
+  + cd.setText(name);
+}
+#22
+(tb : JToggleButton -> Button, parent : JFrame | JPanel -> Shell | Composite, name : String -> String)$instance
+{
+  - tb = new JToggleButton(name);
+  - parent.add(tb);
+  + tb = new Button(parent, SWT.TOGGLE);
+  + tb.setText(name);
+}
+#23
+(up : BasicArrowButton -> Button, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - up = new BasicArrowButton(BasicArrowButton.NORTH);
+  - parent.add(up);
+  + up = new Button(parent, SWT.ARROW | SWT.UP);
+}
+#24
+(down : BasicArrowButton -> Button, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - down = new BasicArrowButton(BasicArrowButton.SOUTH);
+  - parent.add(down);
+  + down = new Button(parent, SWT.ARROW | SWT.DOWN);
+}
+#25
+(right : BasicArrowButton -> Button, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - right = new BasicArrowButton(BasicArrowButton.EAST);
+  - parent.add(right);
+  + right = new Button(parent, SWT.ARROW | SWT.RIGHT);
+}
+#26
+(left : BasicArrowButton -> Button, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - left = new BasicArrowButton(BasicArrowButton.WEST);
+  - parent.add(left);
+  + left = new Button(parent, SWT.ARROW | SWT.LEFT);
+}
+#27
+
+//parent: JPanel/GroupButton/JFrame -> Composite/Group/Shell
+//如果为GroupButton时，都需要添加监听事件：
+//Button.addSelectionListener(new SelectionAdapter() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						Control btn = (Control)e.getSource();
+//						Control[] controls = (Control[])btn.getParent().getChildren();
+//						for(Control b : controls){
+//							((Button)b).setSelection(false);
+//						}
+//						btn.setSelection(true);
+//					}
+//				});
+//#28
+(gb : ButtonGroup -> Group, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - gb = new ButtonGroup();
+  - parent.add(gb);
+  + gb = new Group(parent, SWT.NONE);
+}
+#29
+//------------------------------------Text-----------------------
+(jtf : JTextField -> Text, parent : JFrame | JPanel -> Shell | Composite, length : int -> int)$instance
+{
+  - jtf = new JTextField(length);
+  - parent.add(jtf);
+  + jtf = new Text(parent, SWT.SINGLE);
+  + jtf.setSize(10, length);
+}
+#30
+
+//---------------------------------CLabel----------------------
+(lab : JLabel -> CLable, parent : JFrame | JPanel -> Shell | Composite, text : String -> String, icon : Icon -> Image)$instance
+{
+  - lab = new JLabel(text, icon, JLabel.CENTER);
+  - parent.add(lab);
+  + lab = new CLabel(parent, SWT.NONE);
+  + lab.setImage(icon);
+  + lab.setText(text);
+  + lab.setAlignment(SWT.CENTER);
+}
+#31
+(lab : JLabel -> CLabel, text : String -> String)$invocation
+{
+  - lab.setText(text);
+  + lab.setText(text);
+}
+#32
+(lab : JLabel -> CLabel, icon : Icon -> Image)$invocation
+{
+  - lab.setIcon(icon);
+  + lab.setImage(icon);
+}
+#33
+//---------------------------------Combo-----------------------
+(cb : JComboBox -> Combo, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - cb = new JComboBox();
+  - parent.add(cb);
+  + cb = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+}
+#34
+
+(cb : JComboBox -> Combo, item : String -> String)$invocation
+{
+  - cb.addItem(item);
+  + cb.add(item);
+}
+#35
+(cb : JComboBox -> Combo, index : int -> int)$invocation
+{
+  - cb.setSelectedIndex(index);
+  + cb.select(index);
+}
+#36
+//----------------------------------List------------------------
+(list : JList -> List, parent : JFrame | JPanel -> Shell | Composite, items : String[] -> String[])$instance
+{
+  - list = new JList(items);
+  - parent.add(new JScrollPane(list));
+  + list = new List(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE | SWT.BORDER);
+  + list.setItems(items);
+}
+#37
+//-------------------------------Tree----------------------------
+(node : DefaultMutableTreeNode -> TreeItem, parent : DefaultMutableTreeNode -> TreeItem, text : String -> String)$instance
+{
+  - node = new DefaultMutableTreeNode(text);
+  - parent.add(node);
+  + node = new TreeItem(parent, SWT.NONE);
+  + node.setText(text);
+}
+#38
+(tree : JTree -> Tree, parent : JFrame | JPanel -> Shell | Composite, root : DefaultMutableTreeNode -> TreeItem, text : String -> String)$instance
+{
+  - root = new DefaultMutableTreeNode(text);
+  - tree = new JTree(root);
+  - parent.add(new JScrollPane(tree));
+  + tree = new Tree(parent, SWT.SINGLE | SWT.V_SCROLL)
+  + root = new TreeItem(tree, SWT.NONE);
+  + root.setText(text);
+}
+#39
+(tree : JTree -> Tree, chosen : DefaultMutableTreeNode -> TreeItem)$instance
+{
+  - chosen = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+  + chosen = tree.getSelection()[0];
+}
+#40
+//==================需要修改===未完成==========
+//（tree : JTree -> Tree, model : DefaultTreeModel, chosen : DefaultMutableTreeNode -> TreeItem, child : DefaultMutableTreeNode -> TreeItem)
+//{
+//  - model = (DefaultTreeModel)tree.getModel();
+//  - model.insertNodeInto(child, chosen, 0);
+//  + c
+//}
+//#41
+//--------------------------------Table---------------------------------
+(table : JTable -> Table, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - table = new JTable();
+  - JScrollPane scrollPane = JTable.createScrollPaneForTable(table);
+  - parent.add(scrollPane);
+  + table = new Table(parent, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL); 
+}
+#42
+//--------------------------------TabFolder---------------------
+(tab : JTabbedPane -> TabFolder, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - tab = new JTabbedPane();
+  + tab = new TabFolder(parent, SWT.NONE);
+}
+#43
+(tab : JTabbedPane -> TabFolder, item : JFrame | JPanel -> Shell | Composite, name : String -> String)$invocation
+{
+  - tab.addTab(name, item);
+  + TabItem tabItem = new TabItem(tab, SWT.NONE);
+  + tabItem.setText(name);
+  + tabItem.setControl(item);
+}
+#44
+(tab : JTabbedPane -> TabFolder, index : int -> int)$invocation
+{
+  - tab.setSelectedIndex(index);
+  + tab.setSelection(index);
+}
+#45
+//--------------------------------Progress/Slider/Scale-------------
+(pb : JProgressBar -> ProgressBar, parent : JFrame | JPanel -> Shell | Composite)$instance
+{
+  - pb = new JProgressBar();
+  - parent.add(pb);
+  + pb = new ProgressBar(parent, SWT.H_SCROLL);
+}
+#46
+(slider : JSlider -> Scale, parent : JFrame | JPanel -> Shell | Composite, min : int -> int, max : int -> int, value : int -> int)$instance
+{
+  - slider = new JSlider(JSlider.HORIZONTAL, min, max, value);
+  - parent.add(slider);
+  + slider = new Scale(parent, SWT.H_SCROLL);
+  + slider.setMinimum(min);
+  + slider.setMaximum(max);
+  + slider.setSelection(value);
+}
+#47
+(slider : JSlider -> Scale, parent : JPanel -> Group, title : String -> String, min : int -> int, max : int -> int, value : int -> int)$instance
+{
+  - slider = new JSlider(JSlider.HORIZONTAL, min, max, value);
+  - slider.setBorder(new TitledBorder(title));
+  - parent.add(slider);
+  + slider = new Scale(parent, SWT.H_SCROLL);
+  + parent.setText(title);
+  + slider.setMinimum(min);
+  + slider.setMaximum(max);
+  + slider.setSelection(value);
+}
+#48
+(slider : JSlider -> Scale, parent : JPanel -> Group, title : String -> String, min : int -> int, max : int -> int, value : int -> int)$instance
+{
+  - slider = new JSlider(JSlider.HORIZONTAL, min, max, value);
+  - parent.add(slider);
+  + slider = new Scale(parent, SWT.H_SCROLL);
+  + parent.setText(title);
+  + slider.setMinimum(min);
+  + slider.setMaximum(max);
+  + slider.setSelection(value);
+}
+#49
+(slider : JSlider -> Scale, value : int -> int)$invocation
+{
+  - slider.setValue(value);
+  + slider.setSelection(value);
+}
+#50
+(pb : JProgressBar -> Progress, sd : JSlider -> Scale)$invocation
+{
+  - pb.setModel(sd.getModel());
+  + sd.addSelectionListener(new SelectionAdapter() {
+  +		@Override
+  +		public void widgetSelected(SelectionEvent e) {
+  +			pb.setSelection(sd.getSelection(););
+  +		}
+  +	});
+}
+#51
+//----------------------------------Menu------------------------
+(mbar : JMenuBar -> Menu, parent : JFrame | JPanel -> Shell | getShell())$instance
+{
+  - mbar = new JMenuBar();
+  - parent.add(mbar, BorderLayout.NORTH);
+  + mbar = new Menu(parent, SWT.BAR);
+  + ((Shell)parent.getShell()).setMenuBar(mbar);
+}
+#52
+(menu : JMenu -> MenuItem, parent : JMenuBar -> Menu)$instance
+{
+  - menu = new JMenu();
+  - parent.add(menu);
+  + m = new MenuItem(parent, SWT.CASCADE);
+  + Menu menu = new Menu(menu);
+  + m.setMenu(menu);
+}
+#53
+(menu : JMenu->Menu)$invocation
+{
+  - menu.setMnemonic();
+}
+#54
+(menu : JMenu -> MenuItem, text : String -> String)$invocation
+{
+  - menu.setText(text);
+  + menu.setText(text);
+}
+#55
+(mitem : JMenuItem -> Menuitem, parent : JMenu -> Menu)$instance
+{
+  - mitem = new MenuItem();
+  - parent.add(mitem);
+  + mitem = new MenuItem(parent, SWT.PUSH);
+}
+#56
+(mitem : JMenuItem -> MenuItem, text : String -> String)$invocation
+{
+  - mitem.setText(text);
+  + mitem.setText(text);
+}
+#57
+(mitem : JMenuItem -> MenuItem)$invocation
+{
+  - mitem.getText();
+  + mitem.getText();
+}
+#58
+(mitem : JMenuItem -> MenuItem)$invocation
+{
+  - mitem.getIcon();
+  + mitem.getImage();
+}
+#59
+(mitem : JMenuItem -> MenuItem, icon : Icon -> Image)$invocation
+{
+  - mitem.setIcon(icon);
+  + mitem.setImage(icon);
+}
+#60
+(mitem : JCheckBoxMenuItem -> Menuitem, parent : JMenu -> Menu)$instance
+{
+  - mitem = new JCheckBoxMenuItem();
+  - parent.add(mitem);
+  + mitem = new MenuItem(parent, SWT.CHECK);
+}
+#61
+(mitem : JCheckBoxMenuItem -> MenuItem, text : String -> String)$invocation
+{
+  - mitem.setText(text);
+  + mitem.setText(text);
+}
+#62
+(mitem : JRadioButtonMenuItem -> Menuitem, parent : JMenu -> Menu)$instance
+{
+  - mitem = new JRadioButtonMenuItem();
+  - parent.add(mitem);
+  + mitem = new MenuItem(parent, SWT.RADIO);
+}
+#63
+(mitem : JRadioButtonMenuItem -> MenuItem, text : String -> String)$invocation
+{
+  - mitem.setText(text);
+  + mitem.setText(text);
+}
+#64
+(m : JRadioButtonMenuItem -> MenuItem, parent : JMenu -> Menu, bgroup : ButtonGroup->Group)$instance
+{
+  - m = new JRadioButtonMenuItem();
+  - bgroup = new ButtonGroup();
+  - bgroup.add(m);
+  - parent.add(m);
+  + m = new MenuItem(parent, SWT.RADIO);
+}
+#65
+//mitem : JMenuItem/JCheckBoxMenuItem/JRadioButtonMenuItem -> MenuItem
+(mitem : JMenuItem -> MenuItem, al : ActionListener -> SelectionListener)$invocation
+{
+  - mitem.addActionListener(al);
+  + mitem.addSelectionListener(al);
+}
+#66
+//mitem : JMenuItem/JCheckBoxMenuItem/JRadioButtonMenuItem -> MenuItem
+(mitem : JMenuItem -> MenuItem, enabled : Boolean -> Boolean)$invocation
+{
+  - mitem.setEnable(enabled);
+  + mitem.setEnable(enabled);
+}
+#67
+(sep : JSeparator -> MenuItem, parent : JMenu -> Menu)$instance
+{
+  - sep = new JSeparator();
+  - parent.add(sep);
+  + new MenuItem(parent, SWT.SEPARATOR);
+}
+#68
+//-----------------------------------Popup----------------------
+(pop : JPopupMenu -> Menu)$instance
+{
+  - pop = new JPopupMenu();
+  + pop = new Menu(getShell(), SWT.POP_UP);
+}
+#69
+(pop : JPopupMenu -> Menu)$invocation
+{
+  - pop.addSeparator();
+  + new MenuItem(pop, SWT.SEPARATOR);
+}
+#70
+(item : JMenuItem  -> MenuItem, parent : JPopupMenu -> Menu, text : String -> String)$instance
+{
+  - item = new JMenuItem(text);
+  - parent.add(item);
+  + item = new MenuItem(parent, SWT.PUSH);
+  + item.setText(text);
+}
+#71
+//-----------------------------------Layout---------------------
+(flowlayout : FlowLayout -> RowLayout)$instance
+{
+  - flowlayout = new FlowLayout();
+  + flowlayout = new RowLayout();
+}
+#72
+(gridlayout : GridLayout -> GridLayout, row : int -> int, column : int -> int)$instance
+{
+  - gridlayout = new GridLayout(row, column);
+  + gridlayout = new GridLayout(column, true);
+}
+#73
+(ly : BorderLayout -> BorderLayout, container : JPanel -> Composite)$instance
+{
+  - ly = new BorderLayout();
+  - container.setLayout(ly);
+  + ly = new BorderLayout();
+  + container.setLayout(ly);
+}
+#74
+//----------------------------------Listener-----------------------
+// Listener 中的方法需要一一解析,注意：在actionPerformed方法中出现的内容
+// 应该都添加到widgetSelected方法体中
+(al : ActionListener -> SelectionListener/SelectionAdapter)$instance
+{
+  - al = new ActionListener(){
+  -   @Override
+  -   public void actionPerformed(ActionEvent e){
+  -   }
+  - };
+  + al = new SelectionListener(){
+  +   @Override
+  +   public void widgetSelected(SelectionEvent e){
+  +   }
+  +   @Override
+  +   public void widgetDefaultSelected(SelectionEvent e){
+  +   }
+  + };
+}
+#75
+//-----------------------------------Border-------------------------------
+(lb : LineBorder -> GC, color : Color -> Color, jp : JPanel -> Composite)$instance
+{
+  - lb = new LineBorder(Color);
+  - jp.setBorder(lb);
+  + jp.addPaintListener(new PaintListener(){ 
+  + 	@Override
+  + 	public void paintControl(PaintEvent e){
+  +   		GC gc = e.gc;
+  +   		gc.setForeground(color);
+  +   		gc.drawRectangle(e.x, e.y, e.width -1, e.height -1);
+  +   		gc = null;
+  + 	}
+  + });
+}
+#76
+(tborder : TitledBorder->TitledBorder, parent : JPanel -> Group, title : String -> String)$instance
+{
+  - tborder = new TitledBorder(title);
+  - parent.setBorder(tborder);
+  + tborder = new Group(parent, SWT.BORDER);
+  + tborder.setText(title);
+}
+#77
+//对上面的转换规则进行修改，考虑到使用标题边框时子控件的父容器相应
+//发生变化，中间多增加了一层group。
+(tborder : TitledBorder->TitledBorder, gparent : JFrame | JPanel -> Shell | Composite, parent : JPanel -> Group, title : String -> String)$instance
+{
+  - parent = new ???();
+  - tborder = new TitledBorder(title);
+  - parent.setBorder(tborder);
+  - gparent.add(parent);
+  + tborder = new Group(gparent, SWT.BORDER);
+  + tborder.setText(title);
+  + tborder.setLayout(new FillLayout());
+  + parent = new ???(tborder, SWT.NONE);
+}
+
+#78
+//------------------------------------Color------------------------
+(color : Color -> Color, r : int -> int, g : int -> int, b : int -> int)$instance
+{
+  - color = new Color(r, g, b);
+  + color = new Color(getDisplay(), r, g, b);
+}
+#79
+(color : Color -> Color)$instance
+{
+  - color = Color.xxx;
+  + color = getDisplay().getSystemColor(SWT.XXX);
+}
+
+#80
+//-----------------------------------Image--------------------------
+(icon : Icon -> Image, path : String -> String)$instance
+{
+  - icon = new ImageIcon(path);
+  + icon = new Image(getDisplay(), path);
+}
+
+#81
+//---------------------------------Constructor---------------------
+(ctor : Constructor -> Constructor, c : Class -> Class)$invocation
+{
+  - ctor = c.getConstructor();
+  + ctor = c.getConstructors()[0];
+}
+#82
+(ctor : Constructor -> Constructor, class : Class -> Class, param : Class[] -> Class[])$invocation
+{
+  - ctor = class.getConstructor(param);
+  + ctor = class.getConstructor(param);
+}
+#83
