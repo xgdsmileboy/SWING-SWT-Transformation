@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Transformation" default="main" basedir="." >
+
+<property name="src.dir" value="${basedir}/src" />
+<property name="lib.dir" value="${basedir}/lib" />
+
+<property name="build.dir" value="${basedir}/build" />
+<property name="bin.dir" value="${build.dir}/bin" />
+<property name="jar.dir" value="${build.dir}/jar" />
+
+<property name="conf.dir" value="${basedir}/conf" />
+<property name="conf_tar.dir" value="${jar.dir}/conf" />
+<property name="test.dir" value="${basedir}/test" />
+<property name="test_tar.dir" value="${jar.dir}/test" />
+
+<property name="main-class" value="cn/edu/TransGUI" />
+
+
+<target name="main" depends="clean,prepare,compile,jar" />
+
+<path id="Lib">
+  <fileset dir="${lib.dir}">
+    <include name="*.jar"/>
+  </fileset>
+</path>
+      
+<target name="clean">
+  <delete dir="${conf_tar.dir}" />
+  <delete dir="${test_tar.dir}" />
+  <delete dir="${bin.dir}" />
+  <delete dir="${jar.dir}" />
+  <delete dir="${build.dir}" />
+</target>
+
+<target name="prepare" >
+  <mkdir dir="${build.dir}" />
+  <mkdir dir="${bin.dir}" />
+  <mkdir dir="${conf_tar.dir}" />
+  <mkdir dir="${test_tar.dir}" />
+  <mkdir dir="${jar.dir}" />
+</target>
+
+<target name="compile" depends="prepare">
+  <javac srcdir="${src.dir}" destdir="${bin.dir}" debug="true" deprecation="off"
+   includeantruntime="false">
+    <classpath refid="Lib" />
+  </javac>
+</target>
+
+<target name="extractlib" depends="compile">	
+
+  <unzip dest="${bin.dir}">
+    <fileset dir="${lib.dir}">
+      <include name="*.jar"/>
+    </fileset>
+  </unzip>
+</target>
+
+<target name="copy-file">
+  <copy todir="${conf_tar.dir}">
+    <fileset dir="${conf.dir}" />
+  </copy>
+    <copy todir="${test_tar.dir}">
+    <fileset dir="${test.dir}" />
+  </copy>
+</target>
+
+<target name="jar" depends="extractlib,copy-file" >
+  <mkdir dir="${jar.dir}" />
+  <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${bin.dir}" >
+    <manifest>
+      <attribute name="Main-Class" value="${main-class}" />
+    </manifest>
+  </jar>
+</target>
+
+</project> 
