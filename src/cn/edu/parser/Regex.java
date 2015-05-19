@@ -20,6 +20,10 @@ public class Regex {
 	 */
 	public final static String Regex_Instance_Statement = "[a-zA-Z]\\w*\\s*=\\s*new\\s+.*;";
 	/*
+	 * 实例化，没有变量接受实例的正则表达式
+	 */
+	public final static String Regex_New_Statement = "\\s*new\\s+\\w+";
+	/*
 	 * 声明和实例化性的语句在一起的正则表达式
 	 */
 	public final static String Regex_Declaration_Instance_Statement = "[a-zA-Z]\\w*\\s+[a-zA-Z]\\w*\\s*=\\s*new\\s+.*;";

@@ -12,6 +12,8 @@ public enum EStatementType {
 	Declaration_Statement,
 	// 实例化性语句
 	Instance_Statement,
+	//new语句
+	New_Statement,
 	// 声明和实例化语句在一起
 	Declaration_Instance_Statement,
 	// 赋值语句

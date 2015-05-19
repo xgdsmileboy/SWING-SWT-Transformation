@@ -326,6 +326,7 @@ public class Trans {
 			MethodBodyInfo methodBodyInfo) {
 		List<ISTM> istmStatement = new ArrayList<>();
 		String staString;
+		Clause c = null;
 		switch (statementInfo.getStatementType()) {
 		case Add_Statement: // add语句在SWT中直接删除，在识别控件的父容器时已经使用
 			System.out.println("Delete add invocation : "
@@ -347,6 +348,10 @@ public class Trans {
 			istmStatement = getInvocationStatement(statementInfo,
 					methodBodyInfo);
 			break;
+		case New_Statement:
+			staString = statementInfo.getStatement().toString().trim();
+			c = new Clause(staString);
+			istmStatement.add(c);
 		case Instance_Statement: // 实例化语句
 			istmStatement = getInstanceStatement(statementInfo, methodBodyInfo);
 			break;
@@ -366,7 +371,7 @@ public class Trans {
 			break;
 		case Default: // 其他一些不能识别语句，直接进行转换
 			staString = statementInfo.getStatement().toString();
-			Clause c = new Clause(staString);
+			c = new Clause(staString);
 			istmStatement.add(c);
 			break;
 		default:
@@ -446,6 +451,11 @@ public class Trans {
 		List<ISTM> istm = new ArrayList<>();
 
 		String statementStr = statementInfo.getStatement().toString();
+		if(statementStr.startsWith("System")){
+			Clause c = new Clause(statementStr);
+			istm.add(c);
+			return istm;
+		}
 		// 将语句进行拆分，实现调用者和函数的分离
 		String[] s_temp = statementStr.split("\\.");
 		if (s_temp.length < 2) {
@@ -699,6 +709,7 @@ public class Trans {
 				}
 			}
 		}
+		
 		// 添加包声明
 		addimportToSource(mRuleManager.getImportMatcherMap().get(
 				mRuleManager.getTypeMatcherMap().get(type)));
@@ -768,11 +779,23 @@ public class Trans {
 						TransRecord transRecord = new TransRecord();
 						transRecord.addSourceCode(instance);
 						
+						//标记实例化的类型是否为继承自某一个系统类型
+						String[] realType =temp[1].split("\\(");
+						String replaceType = realType[0].replaceAll("new", " ").trim();
+						boolean isNewType = false;
+						String oldType = mRuleManager.getTypeMatcherMap().get(type);
+						if(!replaceType.equals(oldType) && !mRuleManager.getTypeMatcherMap().containsKey(replaceType)){
+							isNewType = true;
+						}
+						
 						for (String addStr : l) {
 							addStr = addStr.replaceAll(r_variableName,
 									variableName);
 							addStr = addStr.replaceAll("parent", parent);
 							addStr = addStr.replaceAll(r_titleStr, s_title);
+							if(isNewType){
+								addStr = addStr.replaceAll(oldType, replaceType.trim());
+							}
 							Clause c = new Clause(addStr);
 							istm.add(c);
 							transRecord.addTargetCode(c.getStatement());
@@ -786,7 +809,7 @@ public class Trans {
 				}
 			}
 		}
-
+			
 		if (!flag) {
 			System.err.println("No rule match!->" + instance);
 		}

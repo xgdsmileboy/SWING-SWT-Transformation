@@ -147,6 +147,12 @@ public class MethodBodyInfo {
 					EStatementType.Add_Statement));
 			analysisAdd(statement);
 
+		} else if (Regex.isMatch(Regex.Regex_New_Statement, statementStr)) {
+			
+			addmStatementItem(new StatementInfo(statement,
+					EStatementType.New_Statement));
+			analysisNewStatement(statement);
+			
 		} else if (Regex.isMatch(Regex.Regex_Declaration_Statement,
 				statementStr)) {
 
@@ -191,6 +197,10 @@ public class MethodBodyInfo {
 			System.err.println("no match-->" + statement.toString());
 		}
 
+	}
+	
+	void analysisNewStatement(Statement statement){
+		
 	}
 
 	/**

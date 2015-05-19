@@ -70,6 +70,7 @@ public class TransGUI {
 	private JPanel jp_Print;
 	/*
 	 * 供待转换的测试源代码列表信息
+	 * 
 	 */
 	private JComboBox<String> jcb_sourceFile;
 	/*
@@ -123,6 +124,7 @@ public class TransGUI {
 	public TransGUI(){
 		jframe = new JFrame("SWING 2 SWT 演示");
 		jframe.setSize(800, 600);
+		jframe.setResizable(false);
 		jframe.setLayout(new FlowLayout());
 		//初始化用户控制面板
 		initControlPane();
