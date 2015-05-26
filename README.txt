@@ -9,4 +9,4 @@ Also, I have build a graphic user interface for this to have an easy use for use
 
 If you have any question you can contact me at xgd_smileboy@163.com
 
-And if you have any good idear I'll be very glad to exchange with you.
+And if you have any good idear I'll be very glad to exchange idears with you.
